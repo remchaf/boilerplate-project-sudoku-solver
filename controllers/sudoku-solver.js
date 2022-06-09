@@ -76,6 +76,7 @@ function checker(params) {
     .sort((a, b) => a - b);
   return array.every((n, i) => n !== array[i + 1]);
 }
+ 
 // const func = new SudokuSolver();
 // console.log(
 //   func.validate(
