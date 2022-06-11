@@ -1,4 +1,4 @@
-const heapPermutation = require("../permutation.js");
+const heapPermutation = require("./permutation.js");
 
 class SudokuSolver {
   validate(puzzleString) {
