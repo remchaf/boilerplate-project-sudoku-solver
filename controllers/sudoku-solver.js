@@ -1,3 +1,5 @@
+const heapPermutation = require("../permutation.js");
+
 class SudokuSolver {
   validate(puzzleString) {
     return /^[1-9]{81}$/.test(puzzleString);
@@ -47,40 +49,80 @@ class SudokuSolver {
     return checker(string);
   }
 
-  solve(puzzleString) {
-    let array = [];
+  conflicChecker(param) {
     for (let i = 0; i < 9; i++) {
-      array.push(
-        this.checkColPlacement(puzzleString, 1, i + 1, puzzleString[i])
-      );
-      array.push(
-        this.checkRowPlacement(puzzleString, i + 1, 1, puzzleString[i * 9])
-      );
-      array.push(
-        this.checkRegionPlacement(
-          puzzleString,
+      if (
+        !this.checkColPlacement(param, 1, i + 1, param[i]) ||
+        !this.checkRowPlacement(param, i + 1, 1, param[i * 9]) ||
+        !this.checkRegionPlacement(
+          param,
           i + 1,
           (i % 3) * 3 + 1,
-          puzzleString[i * 9 + (i % 3) * 3]
+          param[i * 9 + (i % 3) * 3]
         )
-      );
+      ) {
+        return false;
+      }
     }
-    return array.every((e) => Boolean(e));
+    return true;
+  }
+
+  solve(puzzleString) {
+    const date = new Date();
+    const str = "".concat(puzzleString);
+    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let array = [str],
+      arr = [];
+
+    const idx = str.split("").indexOf(".");
+    let index = idx !== -1 ? Math.floor(idx / 9) * 9 : 81;
+
+    while (array.length && /\./.test(array[0])) {
+      arr = [];
+
+      let strArr = array[0].slice(index, index + 9);
+      let mArr = values.filter((e) => !strArr.includes(e));
+      let permutation = heapPermutation(mArr)[0];
+
+      for (let i = 0; i < array.length; i++) {
+        let string = array[i];
+        let arr0 = permutation.reduce((result, current) => {
+          let this_string = "".concat(string);
+          for (let k = 0; k < current.length; k++) {
+            const e = current[k];
+            this_string = this_string.replace(/\./, e);
+          }
+          if (this.conflicChecker(this_string)) {
+            result.push(this_string);
+          }
+          return result;
+        }, []);
+        arr = arr.concat(arr0);
+      }
+
+      array = [].concat(arr.filter((a) => this.conflicChecker(a)));
+
+      index += 9;
+    }
+
+    const solution = array.find((e) => this.conflicChecker(e));
+    console.log(new Date() - date, "ms");
+    return solution ? { valid: true, solution } : { valid: false };
   }
 }
 
 function checker(params) {
-  array = params
+  const array = params
     .replace(/\./g, "")
     .split("")
     .sort((a, b) => a - b);
   return array.every((n, i) => n !== array[i + 1]);
 }
- 
+
 // const func = new SudokuSolver();
 // console.log(
-//   func.validate(
-//     "135762984946381257728459613694517832812936745357824196473298561581673429269145378"
+//   func.solve(
+//     "..839.7.575.....964..1.......16.29846.9.312.7..754.....62..5.78.8...3.2...492...1"
 //   )
 // );
 
