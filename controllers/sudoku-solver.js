@@ -107,7 +107,7 @@ class SudokuSolver {
 
     const solution = array.find((e) => this.conflicChecker(e));
     console.log(new Date() - date, "ms");
-    return solution ? { valid: true, solution } : { valid: false };
+    return solution ? { valid: true, solution: solution } : { error: "Puzzle cannot be solved" };
   }
 }
 

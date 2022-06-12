@@ -22,32 +22,27 @@ module.exports = function (app) {
         error: "Invalid characters in puzzle",
       });
       return;
-    } else if (
-      /[^A-I1-9]/.test(coordinate) ||
-      /[^A-I]/.test(coordinate[0]) ||
-      /[^1-9]/.test(coordinate[1]) ||
-      coordinate.length > 1
-    ) {
+    } else if (/[^A-I1-9]/.test(coordinate) || coordinate.length > 2) {
       res.json({
         error: "Invalid coordinate",
       });
       return;
-    } else if (/[^1-9\.]/.test(value)) {
+    } else if (/[^1-9\.]/.test(value) || value.length !== 1) {
       res.json({
         error: "Invalid value",
       });
       return;
     } else {
       let arr = [];
-      const row = coordinate[0].charCodeFrom(0);
+      const row = coordinate.charCodeAt(0) - 64;
       const column = coordinate[1] - 0;
-      if (!SudokuSolver.checkRowPlacement(puzzle, row, column, value)) {
+      if (!solver.checkRowPlacement(puzzle, row, column, value)) {
         arr.push("row");
       }
-      if (!SudokuSolver.checkColumnPlacement(puzzle, row, column, value)) {
+      if (!solver.checkColPlacement(puzzle, row, column, value)) {
         arr.push("column");
       }
-      if (!SudokuSolver.checkRegionPlacement(puzzle, row, column, value)) {
+      if (!solver.checkRegionPlacement(puzzle, row, column, value)) {
         arr.push("region");
       }
 
@@ -65,7 +60,7 @@ module.exports = function (app) {
 
   app.route("/api/solve").post((req, res) => {
     let puzzle = req.body.puzzle;
-    const solution = SudokuSolver.solver(puzzle);
+    const solution = solver.solve(puzzle);
     if (!puzzle || puzzle == undefined) {
       res.json({
         error: "Required field missing",
@@ -79,6 +74,7 @@ module.exports = function (app) {
     } else if (puzzle.length !== 81) {
       res.json({
         error: "Expected puzzle to be 81 characters long",
+        solver,
       });
       return;
     } else if (!solution) {
@@ -86,9 +82,7 @@ module.exports = function (app) {
         error: "Puzzle cannot be solved",
       });
     } else {
-      return res.json({
-        solution: solution,
-      });
+      return res.json(solution);
     }
   });
 };
