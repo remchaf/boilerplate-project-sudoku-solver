@@ -22,7 +22,7 @@ module.exports = function (app) {
         error: "Invalid characters in puzzle",
       });
       return;
-    } else if (/[^A-I1-9]/.test(coordinate) || coordinate.length > 2) {
+    } else if (/[^A-I1-9]/.test(coordinate) || coordinate.length !== 2) {
       res.json({
         error: "Invalid coordinate",
       });
