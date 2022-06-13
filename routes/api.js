@@ -59,6 +59,10 @@ module.exports = function (app) {
   });
 
   app.route("/api/solve").post((req, res) => {
+    if(puzzle.length !== 81) {
+      res.json({error: "Expected puzzle to be 81 long"});
+      return;
+    }
     let puzzle = req.body.puzzle;
     const solution = solver.solve(puzzle);
     if (!puzzle || puzzle == undefined) {
@@ -69,12 +73,6 @@ module.exports = function (app) {
     } else if (/[^1-9\.]/.test(puzzle)) {
       res.json({
         error: "Invalid characters in puzzle",
-      });
-      return;
-    } else if (puzzle.length !== 81) {
-      res.json({
-        error: "Expected puzzle to be 81 characters long",
-        solver,
       });
       return;
     } else if (!solution) {
